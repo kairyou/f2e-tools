@@ -83,11 +83,21 @@ function compress(flieIn, fileOut) { // uglifyjs t.js > t.min.js
     opts['ascii_only'] = true; // ASCII characters as \uXXXX
     // util.print(ast.print_to_string(opts));
 
-    ret.data = ast.print_to_string(opts);
-    // fs.writeFileSync(fileOut, ret.data);
-    fs.writeFile(fileOut, ret.data, function (err) {
+
+    var minimized = ast.print_to_string(opts);
+    minimized = minimized.replace(/{var;/g, '{'); // 没用的内部变量, 没删除完整, 剩下了var;
+    /*
+    UG2未在JS末尾加';'号, 导致出现:$.fn.xx=function(a){console.log(this)}(function(){})();
+    $('#hd').xx(); - 里面的this 指向 window了
+    */
+    minimized = minimized.replace(/;$|$/, ';'); // ..}; || ..} -> ..};
+
+    ret.data = minimized;
+    // 由于其他module可能会读取压缩后的文件, 所以这里必须用同步
+    fs.writeFileSync(fileOut, minimized); //, [encoding] // try {} cache (e) {};
+    /*fs.writeFile(fileOut, ret.data, function (err) {
         if (err) throw err;
-    });
+    });*/
 
     return ret;
 }
