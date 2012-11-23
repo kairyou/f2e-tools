@@ -85,7 +85,7 @@ function compress(flieIn, fileOut) { // uglifyjs t.js > t.min.js
 
 
     var minimized = ast.print_to_string(opts);
-    minimized = minimized.replace(/{var;/g, '{'); // 没用的内部变量, 没删除完整, 剩下了var;
+    minimized = minimized.replace(/\bvar;/g, ''); // 没用的内部变量, 没删除完整, 剩下了var;
     /*
     UG2未在JS末尾加';'号, 导致出现:$.fn.xx=function(a){console.log(this)}(function(){})();
     $('#hd').xx(); - 里面的this 指向 window了
@@ -95,9 +95,6 @@ function compress(flieIn, fileOut) { // uglifyjs t.js > t.min.js
     ret.data = minimized;
     // 由于其他module可能会读取压缩后的文件, 所以这里必须用同步
     fs.writeFileSync(fileOut, minimized); //, [encoding] // try {} cache (e) {};
-    /*fs.writeFile(fileOut, ret.data, function (err) {
-        if (err) throw err;
-    });*/
 
     return ret;
 }
