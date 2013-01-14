@@ -111,6 +111,8 @@ var processFile = function(filepath, paths) {
 };
 
 function watch(path, paths) {
+    // watch folder && subfolders with fs.watch: https://github.com/remy/nodemon/issues/66
+    // or node-walk: https://github.com/coolaj86/node-walk
     $exec('find ' + path + ' -type d', function(err, stdout, stderr) {
         if (err) return logMsg(err, true);
         var dirs = stdout.split('\n');
